@@ -7,25 +7,7 @@ namespace TrackerEnabledDbContext.Common.Extensions
 {
     public static class TypeExtensions
     {
-        #region Constants
-
-        //TODO: improve this recognition
-        private const string ProxyNamespace = @"System.Data.Entity.DynamicProxies";
-
-        #endregion
-
         #region -- public methods--
-
-        //TODO: not used in Core, only EF6; test if it can be removed
-        public static Type GetEntityType(this Type entityType)
-        {
-            if (entityType.Namespace == ProxyNamespace)
-            {
-                return GetEntityType(entityType.BaseType);
-            }
-
-            return entityType;
-        }
 
         public static KeyValuePair<string, string> GetKeyValuePair<TEntity>(this TEntity entity, Expression<Func<TEntity, object>> property)
         {
@@ -65,8 +47,7 @@ namespace TrackerEnabledDbContext.Common.Extensions
             return property.Compile()(entity);
         }
 
-        public static PropertyInfo GetPropertyInfo<TSource, TProperty>(
-            this Expression<Func<TSource, TProperty>> propertyLambda)
+        public static PropertyInfo GetPropertyInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
         {
             Type type = typeof(TSource);
 
