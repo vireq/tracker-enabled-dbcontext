@@ -13,6 +13,9 @@ namespace TrackerEnabledDbContext.Core.Common.Interfaces
         DbSet<AuditLog> AuditLogs { get; set; }
         DbSet<AuditLogDetail> AuditLogDetails { get; set; }
         bool TrackingEnabled { get; set; }
+        bool AdditionTrackingEnabled { get; set; }
+        bool ModificationTrackingEnabled { get; set; }
+        bool DeletionTrackingEnabled { get; set; }
 
         event EventHandler<AuditLogGeneratedEventArgs> OnAuditLogGenerated;
 

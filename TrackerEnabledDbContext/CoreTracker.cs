@@ -23,67 +23,6 @@ namespace TrackerEnabledDbContext.Core.Common
             _context = context;
         }
 
-        public void AuditChanges(object userName, ExpandoObject metadata)
-        {
-            List<AuditLog> records = new List<AuditLog>();
-
-            // Get all Deleted/Modified entities (not Unchanged or Detached or Added)
-            foreach (EntityEntry ent in _context.ChangeTracker.Entries().Where(p => p.State == EntityState.Deleted || p.State == EntityState.Modified))
-            {
-                using (var auditer = new LogAuditor(ent))
-                {
-                    var eventType = GetEventType(ent);
-
-                    AuditLog record = auditer.CreateLogRecord(userName, eventType, _context, metadata);
-
-                    if (record != null)
-                    {
-                        var arg = new AuditLogGeneratedEventArgs(record, ent.Entity, metadata);
-                        RaiseOnAuditLogGenerated(this, arg);
-                        if (!arg.SkipSavingLog)
-                        {
-                            records.Add(record);
-                        }
-                    }
-                }
-            }
-
-            _context.AuditLogs.AddRange(records);
-        }
-
-        private EventType GetEventType(EntityEntry entry)
-        {
-            if(entry.State == EntityState.Deleted) return EventType.Deleted;
-
-            var isSoftDeletable = GlobalTrackingConfig.SoftDeletableType?.IsInstanceOfType(entry.Entity);
-
-            if (isSoftDeletable != null && isSoftDeletable.Value)
-            {
-                var previouslyDeleted = GlobalTrackingConfig.DisconnectedContext ?
-                    (bool)entry.GetDatabaseValues().GetValue<object>(GlobalTrackingConfig.SoftDeletablePropertyName) :
-                    (bool)entry.Property(GlobalTrackingConfig.SoftDeletablePropertyName).OriginalValue;
-
-                var nowDeleted = (bool)entry.CurrentValues[GlobalTrackingConfig.SoftDeletablePropertyName];
-
-                if (previouslyDeleted && !nowDeleted)
-                {
-                    return EventType.UnDeleted;
-                }
-
-                if (!previouslyDeleted && nowDeleted)
-                {
-                    return EventType.SoftDeleted;
-                }
-            }
-
-            return EventType.Modified;
-        }
-
-        public IEnumerable<EntityEntry> GetAdditions()
-        {
-            return _context.ChangeTracker.Entries().Where(p => p.State == EntityState.Added).ToList();
-        }
-
         public void AuditAdditions(object userName, IEnumerable<EntityEntry> addedEntries, ExpandoObject metadata)
         {
             List<AuditLog> records = new List<AuditLog>();
@@ -109,11 +48,68 @@ namespace TrackerEnabledDbContext.Core.Common
             _context.AuditLogs.AddRange(records);
         }
 
-        private IEnumerable<string> EntityTypeNames<TEntity>()
+        public void AuditModifications(object userName, ExpandoObject metadata)
         {
-            Type entityType = typeof(TEntity);
-            return typeof(TEntity).Assembly.GetTypes()
-                .Where(t => t.IsSubclassOf(entityType) || t.FullName == entityType.FullName).Select(m => m.FullName);
+            List<AuditLog> records = new List<AuditLog>();
+
+            // Get all Modified entities (not Unmodified or Deleted or Detached or Added)
+            foreach (EntityEntry ent in _context.ChangeTracker.Entries().Where(p => p.State == EntityState.Modified))
+            {
+                using (var auditer = new LogAuditor(ent))
+                {
+                    AuditLog record = auditer.CreateLogRecord(userName, EventType.Modified, _context, metadata);
+
+                    if (record != null)
+                    {
+                        var arg = new AuditLogGeneratedEventArgs(record, ent.Entity, metadata);
+                        RaiseOnAuditLogGenerated(this, arg);
+                        if (!arg.SkipSavingLog)
+                        {
+                            records.Add(record);
+                        }
+                    }
+                }
+            }
+
+            _context.AuditLogs.AddRange(records);
+        }
+
+        public void AuditDeletions(object userName, ExpandoObject metadata)
+        {
+            List<AuditLog> records = new List<AuditLog>();
+
+            // Get all Deleted or Modified entities (not Unmodified or Detached or Added)
+            foreach (EntityEntry ent in _context.ChangeTracker.Entries().Where(p => p.State == EntityState.Deleted || p.State == EntityState.Modified))
+            {
+                using (var auditer = new LogAuditor(ent))
+                {
+                    var eventType = GetEventType(ent);
+                    // Skip changes, as these are handled in the AuditChanges method
+                    if (eventType == EventType.Modified)
+                    {
+                        continue;
+                    }
+
+                    AuditLog record = auditer.CreateLogRecord(userName, eventType, _context, metadata);
+
+                    if (record != null)
+                    {
+                        var arg = new AuditLogGeneratedEventArgs(record, ent.Entity, metadata);
+                        RaiseOnAuditLogGenerated(this, arg);
+                        if (!arg.SkipSavingLog)
+                        {
+                            records.Add(record);
+                        }
+                    }
+                }
+            }
+
+            _context.AuditLogs.AddRange(records);
+        }
+
+        public IEnumerable<EntityEntry> GetAdditions()
+        {
+            return _context.ChangeTracker.Entries().Where(p => p.State == EntityState.Added).ToList();
         }
 
         /// <summary>
@@ -164,6 +160,41 @@ namespace TrackerEnabledDbContext.Core.Common
         {
             string key = primaryKey.ToString();
             return _context.AuditLogs.Where(x => x.TypeFullName == entityTypeName && x.RecordId == key);
+        }
+
+        private EventType GetEventType(EntityEntry entry)
+        {
+            if (entry.State == EntityState.Deleted) return EventType.Deleted;
+
+            var isSoftDeletable = GlobalTrackingConfig.SoftDeletableType?.IsInstanceOfType(entry.Entity);
+
+            if (isSoftDeletable != null && isSoftDeletable.Value)
+            {
+                var previouslyDeleted = GlobalTrackingConfig.DisconnectedContext ?
+                    (bool)entry.GetDatabaseValues().GetValue<object>(GlobalTrackingConfig.SoftDeletablePropertyName) :
+                    (bool)entry.Property(GlobalTrackingConfig.SoftDeletablePropertyName).OriginalValue;
+
+                var nowDeleted = (bool)entry.CurrentValues[GlobalTrackingConfig.SoftDeletablePropertyName];
+
+                if (previouslyDeleted && !nowDeleted)
+                {
+                    return EventType.UnDeleted;
+                }
+
+                if (!previouslyDeleted && nowDeleted)
+                {
+                    return EventType.SoftDeleted;
+                }
+            }
+
+            return EventType.Modified;
+        }
+
+        private IEnumerable<string> EntityTypeNames<TEntity>()
+        {
+            Type entityType = typeof(TEntity);
+            return typeof(TEntity).Assembly.GetTypes()
+                .Where(t => t.IsSubclassOf(entityType) || t.FullName == entityType.FullName).Select(m => m.FullName);
         }
 
         protected virtual void RaiseOnAuditLogGenerated(object sender, AuditLogGeneratedEventArgs e)
