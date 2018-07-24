@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
@@ -150,7 +151,10 @@ namespace TrackerEnabledDbContext.Core
         /// <returns>Returns the number of objects written to the underlying database.</returns>
         public virtual int SaveChanges(object userName)
         {
-            if (!TrackingEnabled) return base.SaveChanges();
+            if (!TrackingEnabled)
+                return base.SaveChanges();
+
+            OnBeforeSaving();
 
             dynamic metaData = new ExpandoObject();
             _metadataConfiguration?.Invoke(metaData);
@@ -187,7 +191,10 @@ namespace TrackerEnabledDbContext.Core
         /// <returns>Returns the number of objects written to the underlying database.</returns>
         public override int SaveChanges()
         {
-            if (!TrackingEnabled) return base.SaveChanges();
+            if (!TrackingEnabled)
+                return base.SaveChanges();
+
+            OnBeforeSaving();
 
             return SaveChanges(_usernameFactory?.Invoke() ?? _defaultUsername);
         }
@@ -204,7 +211,10 @@ namespace TrackerEnabledDbContext.Core
         /// <returns>Returns the number of objects written to the underlying database.</returns>
         public virtual async Task<int> SaveChangesAsync(object userName, CancellationToken cancellationToken)
         {
-            if (!TrackingEnabled) return await base.SaveChangesAsync(cancellationToken);
+            if (!TrackingEnabled)
+                return await base.SaveChangesAsync(cancellationToken);
+
+            OnBeforeSaving();
 
             if (cancellationToken.IsCancellationRequested)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -247,7 +257,10 @@ namespace TrackerEnabledDbContext.Core
         /// <returns>Returns the number of objects written to the underlying database.</returns>
         public virtual async Task<int> SaveChangesAsync(int userId)
         {
-            if (!TrackingEnabled) return await base.SaveChangesAsync(CancellationToken.None);
+            if (!TrackingEnabled)
+                return await base.SaveChangesAsync(CancellationToken.None);
+
+            OnBeforeSaving();
 
             return await SaveChangesAsync(userId, CancellationToken.None);
         }
@@ -259,7 +272,10 @@ namespace TrackerEnabledDbContext.Core
         /// <returns>Returns the number of objects written to the underlying database.</returns>
         public virtual async Task<int> SaveChangesAsync(string userName)
         {
-            if (!TrackingEnabled) return await base.SaveChangesAsync(CancellationToken.None);
+            if (!TrackingEnabled)
+                return await base.SaveChangesAsync(CancellationToken.None);
+
+            OnBeforeSaving();
 
             return await SaveChangesAsync(userName, CancellationToken.None);
         }        
@@ -277,7 +293,10 @@ namespace TrackerEnabledDbContext.Core
         /// </returns>
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
         {
-            if (!TrackingEnabled) return await base.SaveChangesAsync(cancellationToken);
+            if (!TrackingEnabled)
+                return await base.SaveChangesAsync(cancellationToken);
+
+            OnBeforeSaving();
 
             return await SaveChangesAsync(_usernameFactory?.Invoke() ?? _defaultUsername, cancellationToken);
         }
@@ -291,8 +310,25 @@ namespace TrackerEnabledDbContext.Core
         /// </returns>        
         public virtual async Task<int> SaveChangesAsync()
         {
-            if (!TrackingEnabled) return await base.SaveChangesAsync(CancellationToken.None);
+            if (!TrackingEnabled)
+                return await base.SaveChangesAsync(CancellationToken.None);
+
+            OnBeforeSaving();
+
             return await SaveChangesAsync(_usernameFactory?.Invoke() ?? _defaultUsername, CancellationToken.None);
+        }
+
+        private void OnBeforeSaving()
+        {
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                var isSoftDeletable = GlobalTrackingConfig.SoftDeletableType?.IsInstanceOfType(entry);
+                if (isSoftDeletable.HasValue && entry.State == EntityState.Deleted)
+                {
+                    entry.State = EntityState.Modified;
+                    entry.CurrentValues[GlobalTrackingConfig.SoftDeletablePropertyName] = true;
+                }
+            }
         }
     }
 }

@@ -1,22 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using TrackerEnabledDbContext.Common.Configuration;
 using TrackerEnabledDbContext.Core.Identity;
-using SampleLogMaker.Core.Models;
 
 namespace SampleLogMaker.Core.Models
 {
     public class SampleLogMakerCoreContext : TrackerIdentityContext
     {
-        public SampleLogMakerCoreContext (DbContextOptions<SampleLogMakerCoreContext> options)
-            : base(options)
-        {
-        }
+        public SampleLogMakerCoreContext(DbContextOptions<SampleLogMakerCoreContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -53,7 +44,6 @@ namespace SampleLogMaker.Core.Models
         }
 
         public DbSet<Blog> Blog { get; set; }
-
-        public DbSet<SampleLogMaker.Core.Models.Comment> Comment { get; set; }
+        public DbSet<Comment> Comment { get; set; }
     }
 }

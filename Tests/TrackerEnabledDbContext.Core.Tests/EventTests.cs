@@ -157,7 +157,7 @@ namespace TrackerEnabledDbContext.Core.Tests
 
                 var existingEntity = new SoftDeletableModel();
 
-                existingEntity.Delete();
+                existingEntity.IsDeleted = true;
 
                 context.SaveChanges();
 
@@ -200,7 +200,7 @@ namespace TrackerEnabledDbContext.Core.Tests
 
                 var existingEntity = new SoftDeletableModel();
                 
-                existingEntity.Delete();
+                existingEntity.IsDeleted = true;
 
                 context.SaveChanges();
 

@@ -20,8 +20,7 @@ namespace TrackerEnabledDbContext.Core.Tests
         public void InitializeSoftDeletionTests()
         {
             //setup soft deletable config
-            GlobalTrackingConfig.SetSoftDeletableCriteria<ISoftDeletable>
-                (entity => entity.IsDeleted);
+            GlobalTrackingConfig.SetSoftDeletableCriteria<ISoftDeletable>(entity => entity.IsDeleted);
         }
 
         [TestMethod]
@@ -41,14 +40,43 @@ namespace TrackerEnabledDbContext.Core.Tests
                 //save it to database
                 ttc.SaveChanges();
 
-                deletable.AssertAuditForAddition(ttc, deletable.Id,
-                    null, x => x.Id);
+                deletable.AssertAuditForAddition(ttc, deletable.Id, null, x => x.Id);
 
                 //soft delete entity
-                deletable.Delete();
+                deletable.IsDeleted = true;
 
                 //save changes
                 ttc.SaveChanges();
+
+                //assert for soft deletion
+                deletable.AssertAuditForSoftDeletion(ttc, deletable.Id, null, new AuditLogDetail
+                {
+                    NewValue = true.ToString(),
+                    OriginalValue = false.ToString(),
+                    PropertyName = nameof(deletable.IsDeleted)
+                });
+            }
+        }
+
+        [TestMethod]
+        public void ShouldCreateSoftDeleteLog2()
+        {
+            var options = new DbContextOptionsBuilder<TestTrackerContext>()
+                    .UseSqlServer(TestConnectionString)
+                    .Options;
+
+            //create a softdeletable entity and soft delete it
+            var deletable = new SoftDeletableModel();
+
+            using (TestTrackerContext ttc = new TestTrackerContext(options))
+            {
+                ttc.SoftDeletableModels.Add(deletable); //add
+                ttc.SaveChanges(); //add
+
+                deletable.AssertAuditForAddition(ttc, deletable.Id, null, x => x.Id);
+
+                ttc.SoftDeletableModels.Remove(deletable); //soft delete
+                ttc.SaveChanges(); //soft delete
 
                 //assert for soft deletion
                 deletable.AssertAuditForSoftDeletion(ttc, deletable.Id, null, new AuditLogDetail
@@ -77,11 +105,10 @@ namespace TrackerEnabledDbContext.Core.Tests
                 //save it to database
                 ttc.SaveChanges();
 
-                deletable.AssertAuditForAddition(ttc, deletable.Id,
-                    null, x => x.Id);
+                deletable.AssertAuditForAddition(ttc, deletable.Id, null, x => x.Id);
 
                 //soft delete entity
-                deletable.Delete();
+                deletable.IsDeleted = true;
                 deletable.Description = rdg.Get<string>();
 
                 //save changes
@@ -121,10 +148,9 @@ namespace TrackerEnabledDbContext.Core.Tests
                 ttc.Entry(deletable).State = EntityState.Added;
                 ttc.SaveChanges();
 
-                deletable.AssertAuditForAddition(ttc, deletable.Id, null,
-                    x => x.Id, x => x.Description);
+                deletable.AssertAuditForAddition(ttc, deletable.Id, null, x => x.Id, x => x.Description);
 
-                deletable.Delete();
+                deletable.IsDeleted = true;
                 ttc.SaveChanges();
 
                 deletable.AssertAuditForSoftDeletion(ttc, deletable.Id, null,
@@ -169,10 +195,9 @@ namespace TrackerEnabledDbContext.Core.Tests
                 ttc.Entry(deletable).State = EntityState.Added;
                 await ttc.SaveChangesAsync();
 
-                deletable.AssertAuditForAddition(ttc, deletable.Id, null,
-                    x => x.Id, x => x.Description);
+                deletable.AssertAuditForAddition(ttc, deletable.Id, null, x => x.Id, x => x.Description);
 
-                deletable.Delete();
+                deletable.IsDeleted = true;
                 await ttc.SaveChangesAsync();
 
                 deletable.AssertAuditForSoftDeletion(ttc, deletable.Id, null,

@@ -57,7 +57,9 @@ namespace TrackerEnabledDbContext.Core.Common
             {
                 using (var auditer = new LogAuditor(ent))
                 {
-                    AuditLog record = auditer.CreateLogRecord(userName, EventType.Modified, _context, metadata);
+                    var eventType = GetEventType(ent);
+                    
+                    AuditLog record = auditer.CreateLogRecord(userName, eventType, _context, metadata);
 
                     if (record != null)
                     {
@@ -79,17 +81,11 @@ namespace TrackerEnabledDbContext.Core.Common
             List<AuditLog> records = new List<AuditLog>();
 
             // Get all Deleted or Modified entities (not Unmodified or Detached or Added)
-            foreach (EntityEntry ent in _context.ChangeTracker.Entries().Where(p => p.State == EntityState.Deleted || p.State == EntityState.Modified))
+            foreach (EntityEntry ent in _context.ChangeTracker.Entries().Where(p => p.State == EntityState.Deleted))
             {
                 using (var auditer = new LogAuditor(ent))
                 {
-                    var eventType = GetEventType(ent);
-                    // Skip changes, as these are handled in the AuditChanges method
-                    if (eventType == EventType.Modified)
-                    {
-                        continue;
-                    }
-
+                    var eventType = GetEventType(ent);                    
                     AuditLog record = auditer.CreateLogRecord(userName, eventType, _context, metadata);
 
                     if (record != null)
@@ -164,11 +160,12 @@ namespace TrackerEnabledDbContext.Core.Common
 
         private EventType GetEventType(EntityEntry entry)
         {
-            if (entry.State == EntityState.Deleted) return EventType.Deleted;
+            if (entry.State == EntityState.Deleted)
+                return EventType.Deleted;
 
             var isSoftDeletable = GlobalTrackingConfig.SoftDeletableType?.IsInstanceOfType(entry.Entity);
 
-            if (isSoftDeletable != null && isSoftDeletable.Value)
+            if (isSoftDeletable.HasValue && isSoftDeletable.Value)
             {
                 var previouslyDeleted = GlobalTrackingConfig.DisconnectedContext ?
                     (bool)entry.GetDatabaseValues().GetValue<object>(GlobalTrackingConfig.SoftDeletablePropertyName) :

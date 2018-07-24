@@ -9,7 +9,7 @@ using TrackerEnabledDbContext.Core.Tests;
 using TrackerEnabledDbContext.Common.Tests.Extensions;
 using TrackerEnabledDbContext.Common.Tests.Code;
 
-namespace TrackerEnabledDbContext.EF6.Tests
+namespace TrackerEnabledDbContext.Core.Tests
 {
     [TestClass]
     public class DisconnectedContextTests
@@ -65,7 +65,7 @@ namespace TrackerEnabledDbContext.EF6.Tests
 
             using (TestTrackerContext newContext2 = GetNewContextInstance())
             {
-                newEntity.Delete();
+                newEntity.IsDeleted = true;
                 newContext2.Entry(newEntity).State = EntityState.Modified;
                 newContext2.SaveChanges();
 
@@ -115,8 +115,8 @@ namespace TrackerEnabledDbContext.EF6.Tests
 
             using (TestTrackerContext ttc = GetNewContextInstance())
             {
-                ttc.NormalModels.Attach(entity);
-                ttc.Entry(entity).State = EntityState.Added;
+                ttc.NormalModels.Add(entity);
+                //ttc.Entry(entity).State = EntityState.Added;
 
                 ttc.SaveChanges();
 
@@ -141,7 +141,6 @@ namespace TrackerEnabledDbContext.EF6.Tests
 
             using (TestTrackerContext newContextInstance = GetNewContextInstance())
             {
-
                 newContextInstance.TrackedModelWithMultipleProperties.Attach(newModel);
                 newContextInstance.Entry(newModel).State = EntityState.Deleted;
 
