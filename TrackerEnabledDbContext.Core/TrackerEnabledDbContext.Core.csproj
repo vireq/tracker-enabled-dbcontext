@@ -6,7 +6,7 @@
     <AssemblyOriginatorKeyFile>MyKey.snk</AssemblyOriginatorKeyFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageProjectUrl>https://github.com/asulwer/tracker-enabled-dbcontext</PackageProjectUrl>
-    <Version>4.0.3</Version>
+    <Version>4.0.4</Version>
     <Authors>Aaron Sulwer</Authors>
     <Copyright>2018</Copyright>
     <PackageTags>SQL, Database, EntityFramework</PackageTags>
@@ -14,8 +14,8 @@
     <Description>Use this to extend Entity Framework functionality to store changes in database. This is very useful for auditing purpose. It stores WHO changed WHAT and WHEN. It will let you choose which tables and columns you want to track with the help of attributes.
 
 Forked from Bilal Fazlani to support EF Core 2</Description>
-    <AssemblyVersion>4.0.3.0</AssemblyVersion>
-    <FileVersion>4.0.3.0</FileVersion>
+    <AssemblyVersion>4.0.4.0</AssemblyVersion>
+    <FileVersion>4.0.4.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
