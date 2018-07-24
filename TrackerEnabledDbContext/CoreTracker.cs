@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using TrackerEnabledDbContext.Common.Configuration;
 using TrackerEnabledDbContext.Common.EventArgs;
 using TrackerEnabledDbContext.Common.Models;

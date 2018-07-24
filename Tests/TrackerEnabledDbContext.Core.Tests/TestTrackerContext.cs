@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using TrackerEnabledDbContext.Common.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
 using TrackerEnabledDbContext.Common.Tests.Models;
 using TrackerEnabledDbContext.Common.Tests;
 

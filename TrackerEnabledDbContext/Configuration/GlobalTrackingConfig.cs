@@ -28,8 +28,7 @@ namespace TrackerEnabledDbContext.Common.Configuration
         internal static Type SoftDeletableType;
         internal static string SoftDeletablePropertyName;
 
-        public static void SetSoftDeletableCriteria<TSoftDeletable>(
-            Expression<Func<TSoftDeletable,bool>> softDeletableProperty)
+        public static void SetSoftDeletableCriteria<TSoftDeletable>(Expression<Func<TSoftDeletable,bool>> softDeletableProperty)
         {
             SoftDeletableType = typeof (TSoftDeletable);
             SoftDeletablePropertyName = softDeletableProperty.GetPropertyInfo().Name;

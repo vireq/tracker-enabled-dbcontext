@@ -1,11 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using TrackerEnabledDbContext.Common.Configuration;
-using TrackerEnabledDbContext.Common.Extensions;
 using TrackerEnabledDbContext.Common.Models;
 using TrackerEnabledDbContext.Core.Common.Configuration;
 using TrackerEnabledDbContext.Core.Common.Interfaces;

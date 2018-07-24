@@ -1,11 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using TrackerEnabledDbContext.Common.Models;
 using TrackerEnabledDbContext.Common.Tools;
 using TrackerEnabledDbContext.Core.Common.Interfaces;
