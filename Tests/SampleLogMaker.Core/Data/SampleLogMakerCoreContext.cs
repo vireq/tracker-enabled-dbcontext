@@ -1,11 +1,11 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using TrackerEnabledDbContext.Core.Identity;
+using TrackerEnabledDbContext.Core;
 
 namespace SampleLogMaker.Core.Models
 {
-    public class SampleLogMakerCoreContext : TrackerIdentityContext
+    public class SampleLogMakerCoreContext : TrackerContext
     {
         public SampleLogMakerCoreContext(DbContextOptions<SampleLogMakerCoreContext> options) : base(options) { }
 

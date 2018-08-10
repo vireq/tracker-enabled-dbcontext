@@ -16,7 +16,7 @@ using TrackerEnabledDbContext.Core.Common.Interfaces;
 
 namespace TrackerEnabledDbContext.Core.Identity
 {
-    public class TrackerIdentityContext : TrackerIdentityContext<IdentityUser<Guid>, IdentityRole<Guid>, Guid>
+    public class TrackerIdentityContext : TrackerIdentityContext<IdentityUser<string>, IdentityRole<string>, string>
     {
         public TrackerIdentityContext() : base()
         {
@@ -27,8 +27,8 @@ namespace TrackerEnabledDbContext.Core.Identity
 
         }
     }
-    public class TrackerIdentityContext<TUser> : TrackerIdentityContext<TUser, IdentityRole<Guid>, Guid>
-        where TUser : IdentityUser<Guid>
+    public class TrackerIdentityContext<TKey> : TrackerIdentityContext<IdentityUser<TKey>, IdentityRole<TKey>, TKey>
+        where TKey : IEquatable<TKey>
     {
         public TrackerIdentityContext() : base()
         {
@@ -39,9 +39,9 @@ namespace TrackerEnabledDbContext.Core.Identity
 
         }
     }
-    public class TrackerIdentityContext<TUser, TRole> : TrackerIdentityContext<TUser, TRole, Guid>
-        where TUser : IdentityUser<Guid>
-        where TRole : IdentityRole<Guid>
+    public class TrackerIdentityContext<TUser, TKey> : TrackerIdentityContext<TUser, IdentityRole<TKey>, TKey>
+        where TUser : IdentityUser<TKey>
+        where TKey : IEquatable<TKey>
     {
         public TrackerIdentityContext() : base()
         {
