@@ -27,21 +27,21 @@ namespace TrackerEnabledDbContext.Core.Identity
 
         }
     }
-    public class TrackerIdentityContext<TKey> : TrackerIdentityContext<IdentityUser<TKey>, IdentityRole<TKey>, TKey>
-        where TKey : IEquatable<TKey>
+    public class TrackerIdentityContext<TUser> : TrackerIdentityContext<TUser, IdentityRole<string>, string>
+        where TUser : IdentityUser<string>
     {
         public TrackerIdentityContext() : base()
         {
-            
+
         }
         public TrackerIdentityContext(DbContextOptions options) : base(options)
         {
 
         }
     }
-    public class TrackerIdentityContext<TUser, TKey> : TrackerIdentityContext<TUser, IdentityRole<TKey>, TKey>
-        where TUser : IdentityUser<TKey>
-        where TKey : IEquatable<TKey>
+    public class TrackerIdentityContext<TUser, TRole> : TrackerIdentityContext<TUser, TRole, string>
+        where TUser : IdentityUser<string>
+        where TRole : IdentityRole<string>
     {
         public TrackerIdentityContext() : base()
         {
@@ -216,6 +216,8 @@ namespace TrackerEnabledDbContext.Core.Identity
                 return base.SaveChanges();
             }
 
+            OnBeforeSaving();
+
             dynamic metadata = new ExpandoObject();
             _metadataConfiguration?.Invoke(metadata);
 
@@ -258,6 +260,8 @@ namespace TrackerEnabledDbContext.Core.Identity
                 return base.SaveChanges();
             }
 
+            OnBeforeSaving();
+
             return SaveChanges(_usernameFactory?.Invoke() ?? _defaultUsername);
         }
 
@@ -278,6 +282,8 @@ namespace TrackerEnabledDbContext.Core.Identity
                 return await base.SaveChangesAsync(cancellationToken);
             }
 
+            OnBeforeSaving();
+
             if (cancellationToken.IsCancellationRequested)
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -286,10 +292,8 @@ namespace TrackerEnabledDbContext.Core.Identity
 
             if (ModificationTrackingEnabled)
                 _coreTracker.AuditModifications(userName, metadata);
-
             if (DeletionTrackingEnabled)
                 _coreTracker.AuditDeletions(userName, metadata);
-
 
             int result;
             if (AdditionTrackingEnabled)
@@ -326,6 +330,8 @@ namespace TrackerEnabledDbContext.Core.Identity
                 return await base.SaveChangesAsync(CancellationToken.None);
             }
 
+            OnBeforeSaving();
+
             return await SaveChangesAsync(userId, CancellationToken.None);
         }
         /// <summary>
@@ -340,6 +346,8 @@ namespace TrackerEnabledDbContext.Core.Identity
             {
                 return await base.SaveChangesAsync(CancellationToken.None);
             }
+
+            OnBeforeSaving();
 
             return await SaveChangesAsync(userName, CancellationToken.None);
         }
@@ -362,6 +370,8 @@ namespace TrackerEnabledDbContext.Core.Identity
                 return await base.SaveChangesAsync(cancellationToken);
             }
 
+            OnBeforeSaving();
+
             return await SaveChangesAsync(_usernameFactory?.Invoke() ?? _defaultUsername, cancellationToken);
         }
         /// <summary>
@@ -379,7 +389,22 @@ namespace TrackerEnabledDbContext.Core.Identity
                 return await base.SaveChangesAsync(CancellationToken.None);
             }
 
+            OnBeforeSaving();
+
             return await SaveChangesAsync(_usernameFactory?.Invoke() ?? _defaultUsername, CancellationToken.None);
+        }
+
+        private void OnBeforeSaving()
+        {
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                var isSoftDeletable = GlobalTrackingConfig.SoftDeletableType?.IsInstanceOfType(entry);
+                if (isSoftDeletable.HasValue && entry.State == EntityState.Deleted)
+                {
+                    entry.State = EntityState.Modified;
+                    entry.CurrentValues[GlobalTrackingConfig.SoftDeletablePropertyName] = true;
+                }
+            }
         }
     }        
 }

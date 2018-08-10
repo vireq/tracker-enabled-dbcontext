@@ -17,13 +17,6 @@ namespace TrackerEnabledDbContext.Common.EventArgs
 
         public object Entity { get; internal set; }
 
-        [Obsolete("Please use `SkipSavingLog` property instead.")]
-        public bool SkipSaving
-        {
-            get { return SkipSavingLog; }
-            set { SkipSavingLog = value; }
-        }
-
         /// <summary>
         /// Skips saving of log to database.
         /// </summary>

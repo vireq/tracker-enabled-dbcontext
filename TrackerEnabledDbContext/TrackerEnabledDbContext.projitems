@@ -40,7 +40,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)EventArgs\AuditLogGeneratedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\EntityTypeConfigurationExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\TypeExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IDbContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\ILogDetailsAuditor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\ITrackerContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IUnTrackable.cs" />

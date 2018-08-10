@@ -75,6 +75,12 @@ namespace TrackerEnabledDbContext.Core
         public virtual DbSet<AuditLog> AuditLogs { get; set; }
         public virtual DbSet<AuditLogDetail> AuditLogDetails { get; set; }
 
+        public virtual event EventHandler<AuditLogGeneratedEventArgs> OnAuditLogGenerated
+        {
+            add { _coreTracker.OnAuditLogGenerated += value; }
+            remove { _coreTracker.OnAuditLogGenerated -= value; }
+        }
+
         public TrackerContext()
         {
             _coreTracker = new CoreTracker(this);
@@ -82,12 +88,6 @@ namespace TrackerEnabledDbContext.Core
         public TrackerContext(DbContextOptions options) : base(options)
         {
             _coreTracker = new CoreTracker(this);
-        }
-        
-        public virtual event EventHandler<AuditLogGeneratedEventArgs> OnAuditLogGenerated
-        {
-            add { _coreTracker.OnAuditLogGenerated += value; }
-            remove { _coreTracker.OnAuditLogGenerated -= value; }
         }
 
         public virtual void ConfigureUsername(Func<string> usernameFactory)
