@@ -235,7 +235,7 @@ namespace TrackerEnabledDbContext.Core
                 // Call the original SaveChanges(), which will save both the changes made and the audit records...Note that added entry auditing is still remaining.
                 result = await base.SaveChangesAsync(cancellationToken);
 
-                //By now., we have got the primary keys of added entries of added entiries because of the call to savechanges.
+                //By now., we have got the primary keys of added entries of added entries because of the call to savechanges.
                 _coreTracker.AuditAdditions(userName, addedEntries, metadata);
 
                 //save changes to audit of added entries

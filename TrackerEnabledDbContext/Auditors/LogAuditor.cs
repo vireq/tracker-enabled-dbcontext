@@ -4,6 +4,7 @@ using System.Dynamic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using TrackerEnabledDbContext.Common.Auditors.Helpers;
 using TrackerEnabledDbContext.Common.Configuration;
 using TrackerEnabledDbContext.Common.Models;
 using TrackerEnabledDbContext.Core.Common.Configuration;
@@ -14,10 +15,12 @@ namespace TrackerEnabledDbContext.Core.Common.Auditors
     internal class LogAuditor : IDisposable
     {
         private readonly EntityEntry _dbEntry;
+        private readonly DbEntryValuesWrapper _dbEntryValuesWrapper;
 
         internal LogAuditor(EntityEntry dbEntry)
         {
             _dbEntry = dbEntry;
+            _dbEntryValuesWrapper = new DbEntryValuesWrapper(_dbEntry);
         }
 
         public void Dispose()
@@ -77,16 +80,16 @@ namespace TrackerEnabledDbContext.Core.Common.Auditors
                     return new AdditionLogDetailsAuditor(_dbEntry, newlog);
 
                 case EventType.Deleted:
-                    return new DeletetionLogDetailsAuditor(_dbEntry, newlog);
+                    return new DeletionLogDetailsAuditor(_dbEntry, newlog, _dbEntryValuesWrapper);
 
                 case EventType.Modified:
-                    return new ChangeLogDetailsAuditor(_dbEntry, newlog);
+                    return new ChangeLogDetailsAuditor(_dbEntry, newlog, _dbEntryValuesWrapper);
 
                 case EventType.SoftDeleted:
-                    return new SoftDeletedLogDetailsAuditor(_dbEntry, newlog);
+                    return new SoftDeletedLogDetailsAuditor(_dbEntry, newlog, _dbEntryValuesWrapper);
 
                 case EventType.UnDeleted:
-                    return new UnDeletedLogDetailsAudotor(_dbEntry, newlog);
+                    return new UnDeletedLogDetailsAuditor(_dbEntry, newlog, _dbEntryValuesWrapper);
 
                 default:
                     return null;
@@ -97,37 +100,23 @@ namespace TrackerEnabledDbContext.Core.Common.Auditors
             EntityEntry dbEntry,
             List<PropertyConfigurationKey> properties)
         {
+            if (properties.Count == 0)
+            {
+                throw new KeyNotFoundException("key not found for " + dbEntry.Entity.GetType().FullName);
+            }
+
             if (properties.Count == 1)
             {
-                return OriginalValue(properties.First().PropertyName);
-            }
-            if (properties.Count > 1)
-            {
-                string output = "[";
-
-                output += string.Join(",",
-                    properties.Select(colName => OriginalValue(colName.PropertyName)));
-
-                output += "]";
-                return output;
-            }
-            throw new KeyNotFoundException("key not found for " + dbEntry.Entity.GetType().FullName);
-        }
-
-        protected virtual object OriginalValue(string propertyName)
-        {
-            object originalValue = null;
-
-            if (GlobalTrackingConfig.DisconnectedContext)
-            {
-                originalValue = _dbEntry.GetDatabaseValues().GetValue<object>(propertyName);
-            }
-            else
-            {
-                originalValue = _dbEntry.Property(propertyName).OriginalValue;
+                return _dbEntryValuesWrapper.OriginalValue(properties.First().PropertyName);
             }
 
-            return originalValue;
+            string output = "[";
+
+            output += string.Join(",",
+                properties.Select(colName => _dbEntryValuesWrapper.OriginalValue(colName.PropertyName)));
+
+            output += "]";
+            return output;
         }
     }
 }

@@ -4,9 +4,9 @@ using TrackerEnabledDbContext.Common.Models;
 
 namespace TrackerEnabledDbContext.Core.Common.Auditors
 {
-    public class SoftDeletedLogDetailsAuditor : ChangeLogDetailsAuditor
+    public class UnDeletedLogDetailsAuditor : ChangeLogDetailsAuditor
     {
-        public SoftDeletedLogDetailsAuditor(EntityEntry dbEntry, AuditLog log, DbEntryValuesWrapper dbEntryValuesWrapper) : base(dbEntry, log, dbEntryValuesWrapper)
+        public UnDeletedLogDetailsAuditor(EntityEntry dbEntry, AuditLog log, DbEntryValuesWrapper dbEntryValuesWrapper) : base(dbEntry, log, dbEntryValuesWrapper)
         {
         }
     }

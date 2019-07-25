@@ -53,7 +53,8 @@ namespace TrackerEnabledDbContext.Core.Common
             List<AuditLog> records = new List<AuditLog>();
 
             // Get all Modified entities (not Unmodified or Deleted or Detached or Added)
-            foreach (EntityEntry ent in _context.ChangeTracker.Entries().Where(p => p.State == EntityState.Modified))
+            var modifications = GetChangesByState(EntityState.Modified);
+            foreach (EntityEntry ent in modifications)
             {
                 using (var auditer = new LogAuditor(ent))
                 {
@@ -80,12 +81,13 @@ namespace TrackerEnabledDbContext.Core.Common
         {
             List<AuditLog> records = new List<AuditLog>();
 
-            // Get all Deleted or Modified entities (not Unmodified or Detached or Added)
-            foreach (EntityEntry ent in _context.ChangeTracker.Entries().Where(p => p.State == EntityState.Deleted))
+            // Get all Deleted entities (not Modified or Unmodified or Detached or Added)
+            var deletions = GetChangesByState(EntityState.Deleted);
+            foreach (EntityEntry ent in deletions)
             {
                 using (var auditer = new LogAuditor(ent))
                 {
-                    var eventType = GetEventType(ent);                    
+                    var eventType = GetEventType(ent);
                     AuditLog record = auditer.CreateLogRecord(userName, eventType, _context, metadata);
 
                     if (record != null)
@@ -105,7 +107,7 @@ namespace TrackerEnabledDbContext.Core.Common
 
         public IEnumerable<EntityEntry> GetAdditions()
         {
-            return _context.ChangeTracker.Entries().Where(p => p.State == EntityState.Added).ToList();
+            return GetChangesByState(EntityState.Added);
         }
 
         /// <summary>
@@ -120,7 +122,7 @@ namespace TrackerEnabledDbContext.Core.Common
         }
 
         /// <summary>
-        ///     Get all logs for the enitity type name
+        ///     Get all logs for the entity type name
         /// </summary>
         /// <param name="context"></param>
         /// <param name="entityTypeName">Name of entity type</param>
@@ -156,6 +158,11 @@ namespace TrackerEnabledDbContext.Core.Common
         {
             string key = primaryKey.ToString();
             return _context.AuditLogs.Where(x => x.TypeFullName == entityTypeName && x.RecordId == key);
+        }
+
+        public IEnumerable<EntityEntry> GetChangesByState(EntityState state)
+        {
+            return _context.ChangeTracker.Entries().Where(p => p.State == state).ToList();
         }
 
         private EventType GetEventType(EntityEntry entry)

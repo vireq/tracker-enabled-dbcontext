@@ -20,10 +20,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Auditors\Comparators\NullableDateComparator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Auditors\Comparators\StringComparator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Auditors\Comparators\ValueTypeComparator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Auditors\DeletetionLogDetailsAuditor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Auditors\DeletionLogDetailsAuditor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Auditors\Helpers\DbEntryValuesWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Auditors\LogAuditor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Auditors\SoftDeletedLogDetailsAuditor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Auditors\UnDeletedLogDetailsAudotor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Auditors\UnDeletedLogDetailsAuditor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Configuration\DbContextExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Configuration\EntityTracker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Configuration\EntityTrackingConfiguration.cs" />

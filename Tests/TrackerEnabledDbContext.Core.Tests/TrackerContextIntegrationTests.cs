@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TrackerEnabledDbContext.Common.Auditors.Helpers;
 using TrackerEnabledDbContext.Common.Configuration;
 using TrackerEnabledDbContext.Common.Models;
 using TrackerEnabledDbContext.Common.Tests.Code;
@@ -572,7 +573,8 @@ namespace TrackerEnabledDbContext.Core.Tests
                 model.Description += rdg.Get<string>();
                 ttc.ChangeTracker.DetectChanges();
                 var entry = ttc.ChangeTracker.Entries().First();
-                var auditor = new ChangeLogDetailsAuditor(entry, null);
+                var valuesWrapper = new DbEntryValuesWrapper(entry);
+                var auditor = new ChangeLogDetailsAuditor(entry, null, valuesWrapper);
 
                 var auditLogDetails = auditor.CreateLogDetails().ToList();
             }
@@ -593,7 +595,8 @@ namespace TrackerEnabledDbContext.Core.Tests
                 ttc.NormalModels.Remove(model);
                 ttc.ChangeTracker.DetectChanges();
                 var entry = ttc.ChangeTracker.Entries().First();
-                var auditor = new ChangeLogDetailsAuditor(entry, null);
+                var valuesWrapper = new DbEntryValuesWrapper(entry);
+                var auditor = new ChangeLogDetailsAuditor(entry, null, valuesWrapper);
 
                 var auditLogDetails = auditor.CreateLogDetails().ToList();
             }
@@ -632,7 +635,7 @@ namespace TrackerEnabledDbContext.Core.Tests
                 ttc.Entry(entity).State = EntityState.Modified;
                 ttc.SaveChanges();
 
-                //make sure there are no unnecessaary logs
+                //make sure there are no unnecessary logs
                 entity.AssertNoLogs(ttc, entity.Id, EventType.Modified);
             }
         }
