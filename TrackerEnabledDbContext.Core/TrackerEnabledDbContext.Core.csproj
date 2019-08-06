@@ -5,17 +5,30 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>MyKey.snk</AssemblyOriginatorKeyFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageProjectUrl>https://github.com/asulwer/tracker-enabled-dbcontext</PackageProjectUrl>
-    <Version>4.0.5</Version>
-    <Authors>Aaron Sulwer</Authors>
-    <Copyright>2018</Copyright>
-    <PackageTags>SQL, Database, EntityFramework</PackageTags>
-    <Company>Aaron Sulwer</Company>
-    <Description>Use this to extend Entity Framework functionality to store changes in database. This is very useful for auditing purpose. It stores WHO changed WHAT and WHEN. It will let you choose which tables and columns you want to track with the help of attributes.
+    <PackageProjectUrl>https://github.com/korser1/tracker-enabled-dbcontext</PackageProjectUrl>
+    
+    <PackageId>TrackerEnabledDbContext.EFCore</PackageId>
+    <Title>Tracker enabled DbContext for .Net Core</Title>
+    <Authors>korser</Authors>
+    <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
 
-Forked from Bilal Fazlani to support EF Core 2</Description>
-    <AssemblyVersion>4.0.5.0</AssemblyVersion>
-    <FileVersion>4.0.5.0</FileVersion>
+    <Version>4.1.0</Version>
+    <Copyright>2019</Copyright>
+    
+    <PackageTags>SQL, Database, EntityFramework</PackageTags>
+    
+    <Company>Sergei Korolev</Company>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Description>Tracker-enabled DbContext for EF Core
+      Forked from https://github.com/asulwer/tracker-enabled-dbcontext
+
+      Enhancements: Avoid multiple selects for one changed entity, add possibility to insert new data to context inside OnAuditLogGenerated event handler
+    </Description>
+    <copyright>Copyright 2019</copyright>
+    <tags>EFCore .NetCore Tracking Audit DbContext</tags>
+
+    <AssemblyVersion>4.1.0.0</AssemblyVersion>
+    <FileVersion>4.1.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

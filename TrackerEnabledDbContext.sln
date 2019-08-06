@@ -1,14 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27428.2015
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29020.237
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{07AA70F2-44BA-41A0-927D-271D284E8028}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{578F0B6A-A461-402F-91F1-ACC7A423E97D}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE.md = LICENSE.md
-		MyKey.snk = MyKey.snk
 		README.md = README.md
 	EndProjectSection
 EndProject
